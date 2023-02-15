@@ -1,7 +1,7 @@
 let app = (function () {
 
     let fungiList = [];
-    let apiUrl = 'https://api.gbif.org/v1/occurrence/search?taxonKey=5&limit=300';
+    let apiUrl = 'http://localhost:5500/_api/occurrence/search?taxonKey=5&limit=300';
 
     async function showFungi() {
         try {
@@ -12,7 +12,7 @@ let app = (function () {
                 const fungus = {
                     media: item.media,
                     scientificName: item.scientificName,
-                    detailsUrl: `https://www.gbif.org/occurrence/${item.key}`
+                    detailsUrl: '/occurrence/' + item.key
                 };
                 add(fungus);
             });
@@ -23,7 +23,7 @@ let app = (function () {
 
     async function showFungusDetails(detailsUrl) {
         try {
-            const response = await fetch(detailsUrl);
+            const response = await fetch(`https://api.gbif.org/v1${detailsUrl}`);
             const json = await response.json();
             console.log(json);
             const fungusDetails = {
