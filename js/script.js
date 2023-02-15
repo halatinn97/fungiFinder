@@ -12,9 +12,30 @@ let app = (function () {
                 const fungus = {
                     media: item.media,
                     scientificName: item.scientificName,
+                    detailsUrl: `https://www.gbif.org/occurrence/${item.key}`
                 };
                 add(fungus);
             });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function showFungusDetails(detailsUrl) {
+        try {
+            const response = await fetch(detailsUrl);
+            const json = await response.json();
+            console.log(json);
+            const fungusDetails = {
+                media: json.media,
+                scientificName: json.scientificName,
+                genericName: json.genericName,
+                country: json.country,
+                species: json.species,
+                decimalLongitude: json.decimalLongitude,
+                decimalLatitute: json.decimalLatitude,
+            };
+            return fungusDetails;
         } catch (error) {
             console.error(error);
         }
@@ -35,7 +56,8 @@ let app = (function () {
     return {
         add: add,
         getAll: getAll,
-        showFungi: showFungi
+        showFungi: showFungi,
+        showFungusDetails: showFungusDetails
     }
 
 })();
@@ -59,11 +81,18 @@ app.showFungi().then(function () {
                 img.classList.add('allFungi');
                 img.src = image.identifier;
                 fungiGallery.appendChild(img);
+
+                //Show details of fungus upon click
+                img.addEventListener('click', async function () {
+                    const fungusDetails = await app.showFungusDetails(fungus.detailsUrl);
+                    console.log(fungusDetails);
+                });
             });
         }
     });
 });
 
 //Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
+
 
 
