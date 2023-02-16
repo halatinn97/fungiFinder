@@ -33,7 +33,7 @@ let app = (function () {
                 country: json.country,
                 species: json.species,
                 decimalLongitude: json.decimalLongitude,
-                decimalLatitute: json.decimalLatitude,
+                decimalLatitude: json.decimalLatitude,
             };
             return fungusDetails;
         } catch (error) {
@@ -63,15 +63,11 @@ let app = (function () {
 })();
 
 
-//Return fungiList array 
+let allFungi = app.getAll(); //Return fungiList array 
 
-let allFungi = app.getAll();
+let fungiGallery = document.getElementById('fungiGallery');
+let detailsContainer = document.getElementById('details');
 
-//Show all fungi
-
-let fungiGallery = document.getElementById('fungiGallery')
-
-//(showFungi() = method of app object!)
 app.showFungi().then(function () {
     //Loop through media array of objects & append img URLs onto real images 
     allFungi.forEach(function (fungus) {
@@ -86,6 +82,16 @@ app.showFungi().then(function () {
                 img.addEventListener('click', async function () {
                     const fungusDetails = await app.showFungusDetails(fungus.detailsUrl);
                     console.log(fungusDetails);
+
+                    // Show fungus details on the page
+                    detailsContainer.innerHTML = `
+                        <h2>${fungusDetails.scientificName}</h2>
+                        <p>Generic Name: ${fungusDetails.genericName}</p>
+                        <p>Country: ${fungusDetails.country}</p>
+                        <p>Species: ${fungusDetails.species}</p>
+                        <p>Longitude: ${fungusDetails.decimalLongitude}</p>
+                        <p>Latitude: ${fungusDetails.decimalLatitude}</p>
+                    `;
                 });
             });
         }
