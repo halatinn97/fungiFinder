@@ -2,7 +2,7 @@
 let app = (function () {
 
     let fungiList = [];
-    let apiUrl = 'http://localhost:5500/_api/occurrence/search?taxonKey=5&limit=300';
+    let apiUrl = 'http://localhost:5500';
 
     async function showFungi() {
         try {
@@ -14,7 +14,7 @@ let app = (function () {
                 const fungus = {
                     media: item.media,
                     scientificName: item.scientificName,
-                    detailsUrl: '/occurrence/' + item.key
+                    detailsUrl: `/fungus/${item.key}`
                 };
                 add(fungus);
             });
@@ -25,9 +25,12 @@ let app = (function () {
 
     async function showFungusDetails(detailsUrl) {
         try {
-            const response = await fetch(`https://api.gbif.org/v1${detailsUrl}`);
+            const key = detailsUrl.split('/').pop();
+            const response = await fetch(`fungus/${key}`);
             const json = await response.json();
             console.log(json);
+            return json;
+            /*
             const fungusDetails = {
                 media: json.media,
                 scientificName: json.scientificName,
@@ -38,6 +41,7 @@ let app = (function () {
                 decimalLatitude: json.decimalLatitude,
             };
             return fungusDetails;
+            */
         } catch (error) {
             console.error(error);
         }
@@ -71,20 +75,22 @@ let fungiGallery = document.getElementById('fungiGallery');
 let detailsContainer = document.getElementById('details');
 
 app.showFungi().then(function () {
+    console.log('script.js loaded')
     //Loop through media array of objects & append img URLs onto real images 
     allFungi.forEach(function (fungus) {
-        if (fungus.media) {
+        if (fungus.media && fungus.media.length > 0) {
             fungus.media.forEach(function (image) {
                 const img = document.createElement('img');
                 img.classList.add('allFungi');
-                img.src = image.identifier;
+                if (fungus.image) {
+                    img.src = `/fungi/media/${fungus.image.split('/').pop()}`;
+                }
                 fungiGallery.appendChild(img);
 
                 //Show details of fungus upon click
                 img.addEventListener('click', async function () {
                     const fungusDetails = await app.showFungusDetails(fungus.detailsUrl);
                     console.log(fungusDetails);
-
                     // Show fungus details on the page
                     detailsContainer.innerHTML = `
                         <h2>${fungusDetails.scientificName}</h2>
@@ -92,7 +98,7 @@ app.showFungi().then(function () {
                         <p>Country: ${fungusDetails.country}</p>
                         <p>Species: ${fungusDetails.species}</p>
                         <p>Longitude: ${fungusDetails.decimalLongitude}</p>
-                        <p>Latitude: ${fungusDetails.decimalLatitude}</p>
+                        <p>Latitude: ${fungusDetails.decimalLatitude}</p>  
                     `;
                 });
             });
