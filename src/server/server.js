@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import axios from 'axios';
-import fs from 'fs';
 
+//Get absolute directory path in ESM
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const app = express();
@@ -10,11 +10,6 @@ const port = 5500;
 
 // Serve static files from the public folder
 app.use(express.static(path.join(__dirname, '..', '..', 'public')));
-
-/*
-app.use('/fungi', express.static('public'))
-app.use('/fungi/media', express.static('public'))
-*/
 
 // Route for serving the index.html file
 app.get('/', (req, res) => {
@@ -33,9 +28,9 @@ app.listen(port, () => {
 
 
 //Show all Fungi information 
-app.get('/fungi', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
-        const response = await axios.get(`https://api.gbif.org/v1/occurrence/search?taxonKey=5&limit=300`);
+        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi');
         const fungi = response.data.results;
         res.send({ results: fungi });
     } catch (error) {
@@ -45,21 +40,15 @@ app.get('/fungi', async (req, res) => {
 });
 
 //Show fungi gallery
-app.get('/fungi/media', async (req, res) => {
+app.get('/gallery', async (req, res) => {
     try {
-        const response = await axios.get('https://api.gbif.org/v1/occurrence/search', {
-            params: {
-                taxonKey: 5,
-                limit: 300,
-                media_type: 'StillImage'
-            }
-        });
+        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi')
 
         const fungiMedia = response.data.results
-            .filter(item => item.media && item.media.length > 0)
+            .filter(item => item.default_photo && item.default_photo.length > 0)
             .map(item => {
-                const imageUrl = item.media[0].identifier;
-                return `<img src="${imageUrl}" alt="${item.scientificName}">`;
+                const imageUrl = item.default_photo;
+                return `<img src="${imageUrl}" alt="${item.taxon.name}">`;
             })
             .join('');
 
@@ -74,17 +63,17 @@ app.get('/fungi/media', async (req, res) => {
 
 //Show fungus details 
 
-app.get('fungi/occurence/:key', async (req, res) => {
+app.get('/observations/:id', async (req, res) => {
+    const id = req.params.id;
     try {
-        const response = await axios.get(`https://api.gbif.org/v1/occurrence/${req.params.key}`);
+        const response = await axios.get(`https://api.inaturalist.org/v1/observations/${id}`);
         const fungusDetails = {
-            media: response.data.media,
-            scientificName: response.data.scientificName,
-            genericName: response.data.genericName,
-            country: response.data.country,
-            species: response.data.species,
-            decimalLongitude: response.data.decimalLongitude,
-            decimalLatitude: response.data.decimalLatitude,
+            default_photo: response.data.default_photo.medium_url,
+            name: response.data.taxon.name,
+            wikipedia_url: response.data.taxon.wikipedia_url,
+            preferred_common_name: response.data.taxon.preferred_common_name,
+            geojson: response.data.taxon.geojson.coordinates,
+            location: response.data.taxon.location
         };
         res.send(fungusDetails);
     } catch (error) {

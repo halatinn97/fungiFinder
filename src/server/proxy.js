@@ -4,11 +4,10 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 const app = express();
 
 app.use('/_api', createProxyMiddleware({
-    target: 'https://api.gbif.org/v1',
+    target: 'https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi',
     changeOrigin: true,
     pathRewrite: {
         '^/_api': '',
-        '^/occurrence': '/occurrence'
     }
 }));
 

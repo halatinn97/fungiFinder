@@ -11,9 +11,9 @@ let app = (function () {
 
             json.results.forEach(item => {
                 const fungus = {
-                    media: item.media,
-                    scientificName: item.scientificName,
-                    detailsUrl: `/fungus/${item.key}`
+                    default_photo: item.taxon.default_photo.medium_url,
+                    name: item.taxon.name,
+                    detailsUrl: `/fungus/${item.id}`
                 };
                 add(fungus);
             });
@@ -24,23 +24,21 @@ let app = (function () {
 
     async function showFungusDetails(detailsUrl) {
         try {
-            const key = detailsUrl.split('/').pop();
-            const response = await fetch(`fungus/${key}`);
+            const id = detailsUrl.split('/').pop();
+            const response = await fetch(`fungus/${id}`);
             const json = await response.json();
             console.log(json);
-            return json;
-            /*
+
             const fungusDetails = {
-                media: json.media,
-                scientificName: json.scientificName,
-                genericName: json.genericName,
-                country: json.country,
-                species: json.species,
-                decimalLongitude: json.decimalLongitude,
-                decimalLatitude: json.decimalLatitude,
+                default_photo: item.default_photo.medium_url,
+                name: item.taxon.name,
+                wikipedia_url: item.taxon.wikipedia_url,
+                preferred_common_name: item.taxon.preferred_common_name,
+                geojson: item.taxon.geojson.coordinates,
+                location: item.taxon.location
             };
             return fungusDetails;
-            */
+
         } catch (error) {
             console.error(error);
         }
@@ -77,12 +75,12 @@ app.showFungi().then(function () {
     console.log('script.js loaded')
     //Loop through media array of objects & append img URLs onto real images 
     allFungi.forEach(function (fungus) {
-        if (fungus.media && fungus.media.length > 0) {
-            fungus.media.forEach(function (image) {
+        if (fungus.default_photo && fungus.default_photo.length > 0) {
+            fungus.default_photo.forEach(function (image) {
                 const img = document.createElement('img');
                 img.classList.add('allFungi');
                 if (fungus.image) {
-                    img.src = `/fungi/media/${fungus.image.split('/').pop()}`;
+                    img.src = `/gallery/${fungus.image.split('/').pop()}`;
                 }
                 fungiGallery.appendChild(img);
 
@@ -92,12 +90,12 @@ app.showFungi().then(function () {
                     console.log(fungusDetails);
                     // Show fungus details on the page
                     detailsContainer.innerHTML = `
-                        <h2>${fungusDetails.scientificName}</h2>
-                        <p>Generic Name: ${fungusDetails.genericName}</p>
-                        <p>Country: ${fungusDetails.country}</p>
-                        <p>Species: ${fungusDetails.species}</p>
-                        <p>Longitude: ${fungusDetails.decimalLongitude}</p>
-                        <p>Latitude: ${fungusDetails.decimalLatitude}</p>  
+                        <h2>${fungusDetails.default_photo}</h2>
+                        <p>Name: ${fungusDetails.name}</p>
+                        <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
+                        <p>More information: ${fungusDetails.wikipedia_url}</p>
+                        <p>Location: ${fungusDetails.location}</p>
+                        <p>GPS: ${fungusDetails.geojson}</p>  
                     `;
                 });
             });
