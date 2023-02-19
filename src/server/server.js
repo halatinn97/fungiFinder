@@ -33,7 +33,6 @@ app.get('/gallery', async (req, res) => {
         const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi&page=3&per_page=200')
 
         const fungi = response.data.results;
-        console.log(`Number of fungi observations: ${fungi.length}`);
 
         const imageUrls = [];
 
@@ -45,8 +44,7 @@ app.get('/gallery', async (req, res) => {
                 imageUrls.push(imageUrl);
             }
         }
-        res.json({ images: imageUrls });
-        console.log(`Number of images with medium URL: ${imageUrls.length}`);
+        res.json({ images: imageUrls }); //Accessed via data.images on client-side
 
 
         // Log the value of default_photo from the first item in the fungi array
@@ -57,9 +55,6 @@ app.get('/gallery', async (req, res) => {
         res.status(500).send('Something went wrong');
     }
 });
-
-// Serve static files from the public folder
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 
 
 //Show fungus details 

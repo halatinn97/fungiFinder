@@ -27,7 +27,7 @@ let app = (function () {
             //Extract id of fungus observation 
             const id = detailsUrl.split('/').pop();
             //API request uses id to request route on server to retrieve fungus details
-            const response = await fetch(`fungus/${id}`);
+            const response = await fetch(`${apiUrl}/fungus/${id}`);
             //Parse response body & return JS object
             const json = await response.json();
             console.log(json);
@@ -52,6 +52,7 @@ let app = (function () {
             const response = await fetch('/gallery');
             const data = await response.json();
             const galleryElement = document.getElementById('gallery');
+
             for (const imageUrl of data.images) {
                 const img = document.createElement('img');
                 img.src = imageUrl;
@@ -62,19 +63,18 @@ let app = (function () {
                     console.log(fungusDetails);
 
                     detailsContainer.innerHTML = `
-                <h2>${fungusDetails.name}</h2>
-                <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
-                <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
-                <p>Location: ${fungusDetails.location}</p>
-                <p>GPS: ${fungusDetails.geojson}</p>
-              `;
+                                <h2>${fungusDetails.name}</h2>
+                                <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
+                                <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
+                                <p>Location: ${fungusDetails.location}</p>
+                                <p>GPS: ${fungusDetails.geojson}</p>
+                              `;
                 });
             }
         } catch (error) {
             console.error(error);
         }
     }
-
 
 
     function add(fungus) {
@@ -99,10 +99,10 @@ let app = (function () {
 
 })();
 
+/*
+let allFungi = app.getAll(); //Return fungiList array
 
-let allFungi = app.getAll(); //Return fungiList array 
-
-
+*/
 //Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
 
 
