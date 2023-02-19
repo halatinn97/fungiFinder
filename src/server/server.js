@@ -8,29 +8,17 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const app = express();
 const port = 5500;
 
-// Serve static files from the public folder
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 
 // Route for serving the index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'index.html'));
 });
 
-// Route for serving the style.css file
-app.get('/css/style.css', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(path.join(__dirname, '..', '..', 'public', 'css', 'style.css'));
-});
-
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
-
 
 //Show all Fungi information 
-app.get('/', async (req, res) => {
+app.get('/fungi', async (req, res) => {
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi');
+        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi&page=3&per_page=200');
         const fungi = response.data.results;
         res.send({ results: fungi });
     } catch (error) {
@@ -42,23 +30,36 @@ app.get('/', async (req, res) => {
 //Show fungi gallery
 app.get('/gallery', async (req, res) => {
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi')
+        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi&page=3&per_page=200')
 
-        const fungiMedia = response.data.results
-            .filter(item => item.default_photo && item.default_photo.length > 0)
-            .map(item => {
-                const imageUrl = item.default_photo;
-                return `<img src="${imageUrl}" alt="${item.taxon.name}">`;
-            })
-            .join('');
+        const fungi = response.data.results;
+        console.log(`Number of fungi observations: ${fungi.length}`);
 
-        res.send(fungiMedia);
+        const imageUrls = [];
+
+        for (let i = 0; i < fungi.length; i++) {
+            const fungus = fungi[i];
+            if (fungus.taxon.default_photo) {
+                const imageUrl = fungus.taxon.default_photo.medium_url;
+                console.log(fungus.taxon.default_photo);
+                imageUrls.push(imageUrl);
+            }
+        }
+        res.json({ images: imageUrls });
+        console.log(`Number of images with medium URL: ${imageUrls.length}`);
+
+
+        // Log the value of default_photo from the first item in the fungi array
+        console.log(fungi[0].taxon.default_photo.medium_url);
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Something went wrong');
     }
 });
 
+// Serve static files from the public folder
+app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 
 
 //Show fungus details 
@@ -84,3 +85,10 @@ app.get('/observations/:id', async (req, res) => {
 
 
 
+// Serve static files from the public folder
+app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+
+
+app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+});

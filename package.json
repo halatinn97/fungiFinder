@@ -5,7 +5,7 @@
   "main": "src/server/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server/server.js & browserify src/client/script.js -o public/js/bundle.js"
+    "start": "node src/server/server.js & browserify src/client/index.js -o public/js/bundle.js"
   },
   "repository": {
     "type": "git",

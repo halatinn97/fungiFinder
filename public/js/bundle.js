@@ -1,114 +1,113 @@
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-let app = (function () {
+(function () { function r(e, n, t) { function o(i, f) { if (!n[i]) { if (!e[i]) { var c = "function" == typeof require && require; if (!f && c) return c(i, !0); if (u) return u(i, !0); var a = new Error("Cannot find module '" + i + "'"); throw a.code = "MODULE_NOT_FOUND", a } var p = n[i] = { exports: {} }; e[i][0].call(p.exports, function (r) { var n = e[i][1][r]; return o(n || r) }, p, p.exports, r, e, n, t) } return n[i].exports } for (var u = "function" == typeof require && require, i = 0; i < t.length; i++)o(t[i]); return o } return r })()({
+    1: [function (require, module, exports) {
+        let app = (function () {
 
-    let fungiList = [];
-    let apiUrl = 'http://localhost:5500';
+            let fungiList = [];
+            let apiUrl = 'http://localhost:5500';
 
-    async function showFungi() {
-        try {
-            const response = await fetch(apiUrl);
-            console.log(response);
-            const json = await response.json();
+            async function showFungi() {
+                try {
+                    const response = await fetch(`${apiUrl}/fungi`);
+                    console.log(response);
+                    const json = await response.json();
 
-            json.results.forEach(item => {
-                const fungus = {
-                    media: item.media,
-                    scientificName: item.scientificName,
-                    detailsUrl: `/fungus/${item.key}`
-                };
-                add(fungus);
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function showFungusDetails(detailsUrl) {
-        try {
-            const key = detailsUrl.split('/').pop();
-            const response = await fetch(`fungus/${key}`);
-            const json = await response.json();
-            console.log(json);
-            return json;
-            /*
-            const fungusDetails = {
-                media: json.media,
-                scientificName: json.scientificName,
-                genericName: json.genericName,
-                country: json.country,
-                species: json.species,
-                decimalLongitude: json.decimalLongitude,
-                decimalLatitude: json.decimalLatitude,
-            };
-            return fungusDetails;
-            */
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    function add(fungus) {
-        if (typeof (fungus) === 'object') {
-            fungiList.push(fungus);
-        } else {
-            return 0;
-        }
-    }
-
-    function getAll() {
-        return fungiList;
-    }
-
-    return {
-        add: add,
-        getAll: getAll,
-        showFungi: showFungi,
-        showFungusDetails: showFungusDetails
-    }
-
-})();
-
-
-let allFungi = app.getAll(); //Return fungiList array 
-
-let fungiGallery = document.getElementById('fungiGallery');
-let detailsContainer = document.getElementById('details');
-
-app.showFungi().then(function () {
-    console.log('script.js loaded')
-    //Loop through media array of objects & append img URLs onto real images 
-    allFungi.forEach(function (fungus) {
-        if (fungus.media && fungus.media.length > 0) {
-            fungus.media.forEach(function (image) {
-                const img = document.createElement('img');
-                img.classList.add('allFungi');
-                if (fungus.image) {
-                    img.src = `/fungi/media/${fungus.image.split('/').pop()}`;
+                    json.results.forEach(item => {
+                        const fungus = {
+                            default_photo: item.taxon.default_photo.medium_url,
+                            name: item.taxon.name,
+                            detailsUrl: `/fungus/${item.id}`
+                        };
+                        add(fungus);
+                    });
+                } catch (error) {
+                    console.error(error);
                 }
-                fungiGallery.appendChild(img);
+            }
 
-                //Show details of fungus upon click
-                img.addEventListener('click', async function () {
-                    const fungusDetails = await app.showFungusDetails(fungus.detailsUrl);
-                    console.log(fungusDetails);
-                    // Show fungus details on the page
-                    detailsContainer.innerHTML = `
-                        <h2>${fungusDetails.scientificName}</h2>
-                        <p>Generic Name: ${fungusDetails.genericName}</p>
-                        <p>Country: ${fungusDetails.country}</p>
-                        <p>Species: ${fungusDetails.species}</p>
-                        <p>Longitude: ${fungusDetails.decimalLongitude}</p>
-                        <p>Latitude: ${fungusDetails.decimalLatitude}</p>  
-                    `;
-                });
-            });
-        }
-    });
-});
+            async function showFungusDetails(detailsUrl) {
+                try {
+                    //Extract id of fungus observation 
+                    const id = detailsUrl.split('/').pop();
+                    //API request uses id to request route on server to retrieve fungus details
+                    const response = await fetch(`fungus/${id}`);
+                    //Parse response body & return JS object
+                    const json = await response.json();
+                    console.log(json);
 
-//Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
+                    const fungusDetails = {
+                        default_photo: json.default_photo.medium_url,
+                        name: json.taxon.name,
+                        wikipedia_url: json.taxon.wikipedia_url,
+                        preferred_common_name: json.taxon.preferred_common_name,
+                        geojson: json.taxon.geojson.coordinates,
+                        location: json.taxon.location
+                    };
+                    return fungusDetails;
+
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            async function showFungiGallery() {
+                try {
+                    const response = await fetch('/gallery');
+                    const data = await response.json();
+                    const galleryElement = document.getElementById('gallery');
+                    for (const imageUrl of data.images) {
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        galleryElement.appendChild(img);
+
+                        img.addEventListener('click', async function () {
+                            const fungusDetails = await showFungusDetails(imageUrl);
+                            console.log(fungusDetails);
+
+                            detailsContainer.innerHTML =
+                                `
+                <h2>${fungusDetails.name}</h2>
+                <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
+                <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
+                <p>Location: ${fungusDetails.location}</p>
+                <p>GPS: ${fungusDetails.geojson}</p>
+              `;
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            function add(fungus) {
+                if (typeof (fungus) === 'object') {
+                    fungiList.push(fungus);
+                } else {
+                    return 0;
+                }
+            }
+
+            function getAll() {
+                return fungiList;
+            }
+
+            return {
+                add: add,
+                getAll: getAll,
+                showFungi: showFungi,
+                showFungusDetails: showFungusDetails,
+                showFungiGallery: showFungiGallery
+            }
+
+        })();
+
+
+        let allFungi = app.getAll(); //Return fungiList array 
+
+
+        //Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
 
 
 
 
-},{}]},{},[1]);
+    }, {}]
+}, {}, [1]);

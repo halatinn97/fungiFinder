@@ -5,7 +5,7 @@ let app = (function () {
 
     async function showFungi() {
         try {
-            const response = await fetch(apiUrl);
+            const response = await fetch(`${apiUrl}/fungi`);
             console.log(response);
             const json = await response.json();
 
@@ -24,18 +24,21 @@ let app = (function () {
 
     async function showFungusDetails(detailsUrl) {
         try {
+            //Extract id of fungus observation 
             const id = detailsUrl.split('/').pop();
+            //API request uses id to request route on server to retrieve fungus details
             const response = await fetch(`fungus/${id}`);
+            //Parse response body & return JS object
             const json = await response.json();
             console.log(json);
 
             const fungusDetails = {
-                default_photo: item.default_photo.medium_url,
-                name: item.taxon.name,
-                wikipedia_url: item.taxon.wikipedia_url,
-                preferred_common_name: item.taxon.preferred_common_name,
-                geojson: item.taxon.geojson.coordinates,
-                location: item.taxon.location
+                default_photo: json.default_photo.medium_url,
+                name: json.taxon.name,
+                wikipedia_url: json.taxon.wikipedia_url,
+                preferred_common_name: json.taxon.preferred_common_name,
+                geojson: json.taxon.geojson.coordinates,
+                location: json.taxon.location
             };
             return fungusDetails;
 
@@ -43,6 +46,36 @@ let app = (function () {
             console.error(error);
         }
     }
+
+    async function showFungiGallery() {
+        try {
+            const response = await fetch('/gallery');
+            const data = await response.json();
+            const galleryElement = document.getElementById('gallery');
+            for (const imageUrl of data.images) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                galleryElement.appendChild(img);
+
+                img.addEventListener('click', async function () {
+                    const fungusDetails = await showFungusDetails(imageUrl);
+                    console.log(fungusDetails);
+
+                    detailsContainer.innerHTML = `
+                <h2>${fungusDetails.name}</h2>
+                <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
+                <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
+                <p>Location: ${fungusDetails.location}</p>
+                <p>GPS: ${fungusDetails.geojson}</p>
+              `;
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
 
     function add(fungus) {
         if (typeof (fungus) === 'object') {
@@ -60,7 +93,8 @@ let app = (function () {
         add: add,
         getAll: getAll,
         showFungi: showFungi,
-        showFungusDetails: showFungusDetails
+        showFungusDetails: showFungusDetails,
+        showFungiGallery: showFungiGallery
     }
 
 })();
@@ -68,40 +102,6 @@ let app = (function () {
 
 let allFungi = app.getAll(); //Return fungiList array 
 
-let fungiGallery = document.getElementById('fungiGallery');
-let detailsContainer = document.getElementById('details');
-
-app.showFungi().then(function () {
-    console.log('script.js loaded')
-    //Loop through media array of objects & append img URLs onto real images 
-    allFungi.forEach(function (fungus) {
-        if (fungus.default_photo && fungus.default_photo.length > 0) {
-            fungus.default_photo.forEach(function (image) {
-                const img = document.createElement('img');
-                img.classList.add('allFungi');
-                if (fungus.image) {
-                    img.src = `/gallery/${fungus.image.split('/').pop()}`;
-                }
-                fungiGallery.appendChild(img);
-
-                //Show details of fungus upon click
-                img.addEventListener('click', async function () {
-                    const fungusDetails = await app.showFungusDetails(fungus.detailsUrl);
-                    console.log(fungusDetails);
-                    // Show fungus details on the page
-                    detailsContainer.innerHTML = `
-                        <h2>${fungusDetails.default_photo}</h2>
-                        <p>Name: ${fungusDetails.name}</p>
-                        <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
-                        <p>More information: ${fungusDetails.wikipedia_url}</p>
-                        <p>Location: ${fungusDetails.location}</p>
-                        <p>GPS: ${fungusDetails.geojson}</p>  
-                    `;
-                });
-            });
-        }
-    });
-});
 
 //Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
 
