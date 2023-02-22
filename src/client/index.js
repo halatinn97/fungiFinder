@@ -49,9 +49,10 @@ let app = (function () {
 
     async function showFungiGallery() {
         try {
-            const response = await fetch('/gallery');
+            const response = await fetch(`${apiUrl}/gallery`);
             const data = await response.json();
             const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = '';
 
             for (const imageUrl of data.images) {
                 const img = document.createElement('img');
