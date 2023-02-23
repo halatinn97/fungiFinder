@@ -14,6 +14,20 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'index.html'));
 });
 
+// Route for serving the gallery.html file
+app.get('/api/gallery', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'gallery.html'));
+});
+
+// Route for serving the fungus.html file
+app.get('/api/observation/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungus.html'));
+});
+
+// Route for serving the fungi.html file
+app.get('/api/fungi', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungi.html'));
+});
 
 //Show all Fungi information 
 app.get('/fungi', async (req, res) => {

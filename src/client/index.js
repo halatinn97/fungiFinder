@@ -56,6 +56,7 @@ let app = (function () {
 
             for (const imageUrl of data.images) {
                 const img = document.createElement('img');
+                img.classList.add('allFungi');
                 img.src = imageUrl;
                 galleryElement.appendChild(img);
 
@@ -100,10 +101,14 @@ let app = (function () {
 
 })();
 
-/*
-let allFungi = app.getAll(); //Return fungiList array
+app.showFungiGallery();
+app.showFungusDetails();
+app.showFungi();
+app.getAll();
 
-*/
+/*let allFungi = app.getAll(); //Return fungiList array*/
+
+
 //Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
 
 
