@@ -20,7 +20,7 @@ app.get('/api/gallery', (req, res) => {
 });
 
 // Route for serving the fungus.html file
-app.get('/api/observation/:id', (req, res) => {
+app.get('/api/fungus/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungus.html'));
 });
 
@@ -32,7 +32,7 @@ app.get('/api/fungi', (req, res) => {
 //Show all Fungi information 
 app.get('/fungi', async (req, res) => {
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi&page=3&per_page=200');
+        const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=3&per_page=200');
         const fungi = response.data.results;
         res.send({ results: fungi });
     } catch (error) {
@@ -44,7 +44,7 @@ app.get('/fungi', async (req, res) => {
 //Show fungi gallery
 app.get('/gallery', async (req, res) => {
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/observations?place_id=any&iconic_taxa=Fungi&page=3&per_page=200')
+        const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=3&per_page=200')
 
         const fungi = response.data.results;
 
@@ -52,9 +52,9 @@ app.get('/gallery', async (req, res) => {
 
         for (let i = 0; i < fungi.length; i++) {
             const fungus = fungi[i];
-            if (fungus.taxon.default_photo) {
-                const imageUrl = fungus.taxon.default_photo.medium_url;
-                console.log(fungus.taxon.default_photo);
+            if (fungus.default_photo) {
+                const imageUrl = fungus.default_photo.medium_url;
+                console.log(fungus.default_photo);
                 imageUrls.push(imageUrl);
             }
         }
@@ -62,7 +62,7 @@ app.get('/gallery', async (req, res) => {
 
 
         // Log the value of default_photo from the first item in the fungi array
-        console.log(fungi[0].taxon.default_photo.medium_url);
+        console.log(fungi[0].default_photo.medium_url);
 
     } catch (error) {
         console.error(error);
@@ -73,17 +73,15 @@ app.get('/gallery', async (req, res) => {
 
 //Show fungus details 
 
-app.get('/observations/:id', async (req, res) => {
+app.get('/fungus/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        const response = await axios.get(`https://api.inaturalist.org/v1/observations/${id}`);
+        const response = await axios.get(`https://api.inaturalist.org/v1/taxa/${id}`);
         const fungusDetails = {
             default_photo: response.data.default_photo.medium_url,
-            name: response.data.taxon.name,
-            wikipedia_url: response.data.taxon.wikipedia_url,
-            preferred_common_name: response.data.taxon.preferred_common_name,
-            geojson: response.data.taxon.geojson.coordinates,
-            location: response.data.taxon.location
+            name: response.data.name,
+            wikipedia_url: response.data.wikipedia_url,
+            preferred_common_name: response.data.preferred_common_name,
         };
         res.send(fungusDetails);
     } catch (error) {

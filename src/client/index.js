@@ -11,8 +11,8 @@ let app = (function () {
 
             json.results.forEach(item => {
                 const fungus = {
-                    default_photo: item.taxon.default_photo.medium_url,
-                    name: item.taxon.name,
+                    default_photo: item.default_photo.medium_url,
+                    name: item.name,
                     detailsUrl: `/fungus/${item.id}`
                 };
                 add(fungus);
@@ -34,11 +34,9 @@ let app = (function () {
 
             const fungusDetails = {
                 default_photo: json.default_photo.medium_url,
-                name: json.taxon.name,
-                wikipedia_url: json.taxon.wikipedia_url,
-                preferred_common_name: json.taxon.preferred_common_name,
-                geojson: json.taxon.geojson.coordinates,
-                location: json.taxon.location
+                name: json.name,
+                wikipedia_url: json.wikipedia_url,
+                preferred_common_name: json.preferred_common_name,
             };
             return fungusDetails;
 
@@ -108,8 +106,6 @@ app.getAll();
 
 /*let allFungi = app.getAll(); //Return fungiList array*/
 
-
-//Currently showing multiple images of same Fungi due to fixed API data - to-do: show only 1 image & reveal rest upon click with more information about the fungi
 
 
 
