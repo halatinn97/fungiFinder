@@ -32,7 +32,7 @@ app.get('/api/fungi', (req, res) => {
 //Show all Fungi information 
 app.get('/fungi', async (req, res) => {
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=3&per_page=200');
+        const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=50&per_page=200');
         const fungi = response.data.results;
         res.send({ results: fungi });
     } catch (error) {
@@ -41,34 +41,61 @@ app.get('/fungi', async (req, res) => {
     }
 });
 
-//Show fungi gallery
+// Show fungi gallery
 app.get('/gallery', async (req, res) => {
+    const perPage = 500;
+    const page = req.query.page || 1;
+
     try {
-        const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=3&per_page=200')
+        // Get 1st page of Fungi
+        let response = await axios.get(`https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=${page}&per_page=${perPage}`);
 
-        const fungi = response.data.results;
+        let fungi = response.data.results;
+        let imageUrls = [];
 
-        const imageUrls = [];
-
+        // Add image URLs from 1st page of Fungi to array
         for (let i = 0; i < fungi.length; i++) {
             const fungus = fungi[i];
             if (fungus.default_photo) {
                 const imageUrl = fungus.default_photo.medium_url;
-                console.log(fungus.default_photo);
                 imageUrls.push(imageUrl);
             }
         }
-        res.json({ images: imageUrls }); //Accessed via data.images on client-side
 
+        // `search_after` retrieves next set of results by id of last Fungus object in Fungi array
+        let searchAfter = fungi[fungi.length - 1].id;
 
-        // Log the value of default_photo from the first item in the fungi array
-        console.log(fungi[0].default_photo.medium_url);
+        //API calls to retrieve next page of Fungi data until all retrieved
+        while (imageUrls.length < 10000) {
+            response = await axios.get(`https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&per_page=${perPage}&search_after=${searchAfter}`);
+            fungi = response.data.results;
+
+            // Stop loop if there are no more results to fetch
+            if (fungi.length === 0) {
+                break;
+            }
+
+            // Add image URLs from this page of Fungi to the array
+            for (let i = 0; i < fungi.length; i++) {
+                const fungus = fungi[i];
+                if (fungus.default_photo) {
+                    const imageUrl = fungus.default_photo.medium_url;
+                    imageUrls.push(imageUrl);
+                }
+            }
+
+            // Update `searchAfter` parameter to id of last fungus object in fungi array for next search request
+            searchAfter = fungi[fungi.length - 1].id;
+        }
+
+        res.json({ images: imageUrls });
 
     } catch (error) {
         console.error(error);
         res.status(500).send('Something went wrong');
     }
 });
+
 
 
 //Show fungus details 
