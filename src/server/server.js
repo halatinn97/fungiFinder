@@ -15,22 +15,22 @@ app.get('/', (req, res) => {
 });
 
 // Route for serving the gallery.html file
-app.get('/api/gallery', (req, res) => {
+app.get('/gallery', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'gallery.html'));
 });
 
 // Route for serving the fungus.html file
-app.get('/api/fungus/:id', (req, res) => {
+app.get('/fungus/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungus.html'));
 });
 
 // Route for serving the fungi.html file
-app.get('/api/fungi', (req, res) => {
+app.get('/fungi', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungi.html'));
 });
 
 //Show all Fungi information 
-app.get('/fungi', async (req, res) => {
+app.get('/api/fungi', async (req, res) => {
     try {
         const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=50&per_page=200');
         const fungi = response.data.results;
@@ -42,7 +42,7 @@ app.get('/fungi', async (req, res) => {
 });
 
 // Show fungi gallery
-app.get('/gallery', async (req, res) => {
+app.get('/api/gallery', async (req, res) => {
     const perPage = 500;
     const page = req.query.page || 1;
 

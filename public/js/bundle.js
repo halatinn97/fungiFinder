@@ -6,7 +6,7 @@ let app = (function () {
 
     async function showFungi() {
         try {
-            const response = await fetch(`${apiUrl}/fungi`);
+            const response = await fetch(`${apiUrl}/api/fungi`);
             console.log(response);
             const json = await response.json();
 
@@ -27,7 +27,7 @@ let app = (function () {
         console.log(`showFungusDetails id: ${id}`); // add this line
         try {
             //API request uses id to request route on server to retrieve fungus details
-            const response = await fetch(`${apiUrl}/fungus/${id}`);
+            const response = await fetch(`${apiUrl}/api/fungus/${id}`);
             //Parse response body & return JS object
             const json = await response.json();
             console.log(json);
@@ -50,7 +50,7 @@ let app = (function () {
 
     async function showFungiGallery() {
         try {
-            const response = await fetch(`${apiUrl}/gallery`);
+            const response = await fetch(`${apiUrl}/api/gallery`);
             const data = await response.json();
             const galleryElement = document.getElementById('gallery');
             const detailsContainer = document.getElementById('details');
@@ -70,7 +70,7 @@ let app = (function () {
 
                     if (fungusDetails) {
                         await showFungusDetails(id);
-                        window.location.href = `${apiUrl}/api/fungus/${id}`;
+                        window.location.href = `${apiUrl}/fungus/${id}`;
 
                         detailsContainer.innerHTML = `
                                 <h2>${fungusDetails.name}</h2>
