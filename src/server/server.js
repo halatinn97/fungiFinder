@@ -100,8 +100,9 @@ app.get('/gallery', async (req, res) => {
 
 //Show fungus details 
 
-app.get('/fungus/:id', async (req, res) => {
-    const id = req.params.id;
+app.get('/fungus', async (req, res) => {
+    // app.get('/fungus/:id', async (req, res) => {
+    /*const id = req.params.id;*/
     try {
         const response = await axios.get(`https://api.inaturalist.org/v1/taxa/${id}`);
         const fungusDetails = {
@@ -113,7 +114,7 @@ app.get('/fungus/:id', async (req, res) => {
         res.send(fungusDetails);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Something went wrong');
+        res.status(500).send(error);
     }
 });
 

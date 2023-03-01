@@ -11,9 +11,9 @@ let app = (function () {
 
             json.results.forEach(item => {
                 const fungus = {
-                    default_photo: item.default_photo.medium_url,
+                    default_photo: item.default_photo,
                     name: item.name,
-                    detailsUrl: `/fungus/${item.id}`
+                    id: item.id
                 };
                 add(fungus);
             });
@@ -22,18 +22,18 @@ let app = (function () {
         }
     }
 
-    async function showFungusDetails(detailsUrl) {
+    async function showFungusDetails(id) {
+        console.log(`showFungusDetails id: ${id}`); // add this line
         try {
-            //Extract id of fungus observation 
-            const id = detailsUrl.split('/').pop();
             //API request uses id to request route on server to retrieve fungus details
-            const response = await fetch(`${apiUrl}/fungus/${id}`);
+            const response = await fetch(`${apiUrl}fungus/${id}`);
             //Parse response body & return JS object
             const json = await response.json();
             console.log(json);
 
             const fungusDetails = {
-                default_photo: json.default_photo.medium_url,
+                id: json.id,
+                default_photo: json.default_photo,
                 name: json.name,
                 wikipedia_url: json.wikipedia_url,
                 preferred_common_name: json.preferred_common_name,
@@ -42,14 +42,17 @@ let app = (function () {
 
         } catch (error) {
             console.error(error);
+            return { error: 'Something went wrong' };
         }
     }
+
 
     async function showFungiGallery() {
         try {
             const response = await fetch(`${apiUrl}/gallery`);
             const data = await response.json();
             const galleryElement = document.getElementById('gallery');
+            const detailsContainer = document.getElementById('details');
             galleryElement.innerHTML = '';
 
             for (const imageUrl of data.images) {
@@ -59,22 +62,29 @@ let app = (function () {
                 galleryElement.appendChild(img);
 
                 img.addEventListener('click', async function () {
-                    const fungusDetails = await showFungusDetails(imageUrl);
+                    const id = imageUrl.split('/')[4].replace(/\D/g, '');
+                    console.log(`id: ${id}`);
+                    const fungusDetails = await showFungusDetails(id);
                     console.log(fungusDetails);
 
-                    detailsContainer.innerHTML = `
+                    if (fungusDetails) {
+                        await showFungusDetails(id);
+                        window.location.href = `${apiUrl}/api/fungus/${id}`;
+
+                        detailsContainer.innerHTML = `
                                 <h2>${fungusDetails.name}</h2>
+                                <img src= ${fungusDetails.default_photo}>
                                 <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
                                 <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
-                                <p>Location: ${fungusDetails.location}</p>
-                                <p>GPS: ${fungusDetails.geojson}</p>
                               `;
+                    }
                 });
             }
         } catch (error) {
             console.error(error);
         }
     }
+
 
 
     function add(fungus) {
@@ -93,8 +103,7 @@ let app = (function () {
         add: add,
         getAll: getAll,
         showFungi: showFungi,
-        showFungusDetails: showFungusDetails,
-        showFungiGallery: showFungiGallery
+        showFungusDetails: showFungusDetails, showFungiGallery
     }
 
 })();
