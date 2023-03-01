@@ -1,5 +1,7 @@
 # FungiFinder
 
+<img width="100" img src="https://user-images.githubusercontent.com/76042761/222130028-8f63b907-e366-41a1-9809-7aa3ba277573.jpeg">
+
 
 ### Description: 
 
