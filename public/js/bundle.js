@@ -27,7 +27,7 @@ let app = (function () {
         console.log(`showFungusDetails id: ${id}`); // add this line
         try {
             //API request uses id to request route on server to retrieve fungus details
-            const response = await fetch(`${apiUrl}fungus/${id}`);
+            const response = await fetch(`${apiUrl}/fungus/${id}`);
             //Parse response body & return JS object
             const json = await response.json();
             console.log(json);
