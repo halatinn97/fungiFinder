@@ -2,6 +2,9 @@ import express from 'express';
 import path from 'path';
 import axios from 'axios';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 //Get absolute directory path in ESM
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
