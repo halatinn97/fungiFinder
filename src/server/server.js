@@ -6,7 +6,7 @@ import axios from 'axios';
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const app = express();
-const port = 5500;
+const port = process.env.PORT || 5500;
 
 
 // Route for serving the index.html file
@@ -100,9 +100,9 @@ app.get('/api/gallery', async (req, res) => {
 
 //Show fungus details 
 
-app.get('/fungus', async (req, res) => {
-    // app.get('/fungus/:id', async (req, res) => {
-    /*const id = req.params.id;*/
+app.get('/api/fungus', async (req, res) => {
+    // app.get('/api/fungus/:id', async (req, res) => {
+    //const id = req.params.id;
     try {
         const response = await axios.get(`https://api.inaturalist.org/v1/taxa/${id}`);
         const fungusDetails = {
