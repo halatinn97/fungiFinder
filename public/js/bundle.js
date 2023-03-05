@@ -24,7 +24,7 @@ let app = (function () {
     }
 
     async function showFungusDetails(id) {
-        console.log(`showFungusDetails id: ${id}`); // add this line
+        console.log(`showFungusDetails id: ${id}`);
         try {
             //API request uses id to request route on server to retrieve fungus details
             const response = await fetch(`${apiUrl}/api/fungus/${id}`);
@@ -69,15 +69,18 @@ let app = (function () {
                     console.log(fungusDetails);
 
                     if (fungusDetails) {
-                        await showFungusDetails(id);
-                        window.location.href = `${apiUrl}/fungus/${id}`;
+                        const id = fungusDetails.id;
+                        const detailsWindow = window.open(`${apiUrl}/fungus/${id}`, '_blank');
+                        detailsWindow.onload = function () {
+                            const detailsContainer = detailsWindow.document.getElementById('details');
 
-                        detailsContainer.innerHTML = `
+                            detailsContainer.innerHTML = `
                                 <h2>${fungusDetails.name}</h2>
                                 <img src= ${fungusDetails.default_photo}>
                                 <p>Preferred common name: ${fungusDetails.preferred_common_name}</p>
                                 <p>More information: <a href="${fungusDetails.wikipedia_url}">${fungusDetails.wikipedia_url}</a></p>
-                              `;
+                            `;
+                        }
                     }
                 });
             }
@@ -85,7 +88,6 @@ let app = (function () {
             console.error(error);
         }
     }
-
 
 
     function add(fungus) {
