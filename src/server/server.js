@@ -11,6 +11,7 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const app = express();
 const port = process.env.PORT || 5500;
 
+//Static routes for serving static files
 
 // Route for serving the index.html file
 app.get('/', (req, res) => {
@@ -23,7 +24,7 @@ app.get('/gallery', (req, res) => {
 });
 
 // Route for serving the fungus.html file
-app.get('/fungus/:id', (req, res) => {
+app.get('/fungus', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungus.html'));
 });
 
@@ -32,7 +33,10 @@ app.get('/fungi', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'fungi.html'));
 });
 
+//Dynamic in sense that it responds with data from external API but not dynamic in context of Express app as not using dynamic routing paraeters --> Simply returns Fungi info, does not filter based on user input
+//To make dynamic: add routing parameters to allow the user to filter the results based on certain criteria, such as species, location, or date
 //Show all Fungi information 
+
 app.get('/api/fungi', async (req, res) => {
     try {
         const response = await axios.get('https://api.inaturalist.org/v1/taxa?taxon_id=47170&rank=species&page=50&per_page=200');
@@ -44,7 +48,9 @@ app.get('/api/fungi', async (req, res) => {
     }
 });
 
+//Dynamic 
 // Show fungi gallery
+
 app.get('/api/gallery', async (req, res) => {
     const perPage = 500;
     const page = req.query.page || 1;
@@ -100,15 +106,18 @@ app.get('/api/gallery', async (req, res) => {
 });
 
 
-
+//Dynamic
 //Show fungus details 
 
 app.get('/api/fungus', async (req, res) => {
     // app.get('/api/fungus/:id', async (req, res) => {
-    //const id = req.params.id;
+    /*const id = req.params.id;*/
+    const id = req.query.id;
+    console.log(id);
     try {
-        const response = await axios.get(`https://api.inaturalist.org/v1/taxa/${id}`);
+        const response = await axios.get(`https://api.inaturalist.org/v1/taxa/${id}`)
         const fungusDetails = {
+            id: id,
             default_photo: response.data.default_photo.medium_url,
             name: response.data.name,
             wikipedia_url: response.data.wikipedia_url,
