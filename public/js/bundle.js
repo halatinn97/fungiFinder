@@ -23,24 +23,29 @@ let app = (function () {
         }
     }
 
-    async function showFungusDetails(id) {
-        console.log(`showFungusDetails id: ${id}`);
+    async function showFungusDetails(imageUrl) {
         try {
-            //API request uses id to request route on server to retrieve fungus details
-            const response = await fetch(`${apiUrl}/api/fungus/${id}`);
-            //Parse response body & return JS object
-            const json = await response.json();
-            console.log(json);
+            if (imageUrl) {
+                // Extract the ID from the URL
+                const id = imageUrl.split('/')[4].replace(/\D/g, '');
+                console.log(`showFungusDetails id: ${id}`);
+                //API request uses id to request route on server to retrieve fungus details
+                const response = await fetch(`${apiUrl}/api/fungus?id=${id}`);
+                //Parse response body & return JS object
+                const json = await response.json();
+                console.log(json);
 
-            const fungusDetails = {
-                id: json.id,
-                default_photo: json.default_photo,
-                name: json.name,
-                wikipedia_url: json.wikipedia_url,
-                preferred_common_name: json.preferred_common_name,
-            };
-            return fungusDetails;
-
+                const fungusDetails = {
+                    id: json.id,
+                    default_photo: json.default_photo,
+                    name: json.name,
+                    wikipedia_url: json.wikipedia_url,
+                    preferred_common_name: json.preferred_common_name,
+                };
+                return fungusDetails;
+            } else {
+                console.log('Image URL is not defined');
+            }
         } catch (error) {
             console.error(error);
             return { error: 'Something went wrong' };
@@ -65,12 +70,12 @@ let app = (function () {
                 img.addEventListener('click', async function () {
                     const id = imageUrl.split('/')[4].replace(/\D/g, '');
                     console.log(`id: ${id}`);
-                    const fungusDetails = await showFungusDetails(id);
+                    const fungusDetails = await showFungusDetails(imageUrl);
                     console.log(fungusDetails);
 
                     if (fungusDetails) {
                         const id = fungusDetails.id;
-                        const detailsWindow = window.open(`${apiUrl}/fungus/${id}`, '_blank');
+                        const detailsWindow = window.open(`${apiUrl}/fungus?id=${fungusDetails.id}`, '_blank');
                         detailsWindow.onload = function () {
                             const detailsContainer = detailsWindow.document.getElementById('details');
 
